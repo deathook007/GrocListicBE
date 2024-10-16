@@ -35,14 +35,9 @@ const userSchema = new mongoose.Schema(
     coverImage: {
       type: String,
     },
-    isVerified: {
-      type: Boolean,
-      default: false,
+    refreshToken: {
+      type: String,
     },
-    forgotPasswordToken: String,
-    forgotPasswordTokenExpiry: Date,
-    verifyToken: String,
-    verifyTokenExpiry: Date,
   },
   {
     timestamps: true,
@@ -62,7 +57,7 @@ userSchema.methods.isPasswordCorrect = async function (password) {
 };
 
 userSchema.methods.generateAccessToken = async function () {
-  jwt.sign(
+  return jwt.sign(
     {
       _id: this._id,
       username: this.username,
@@ -78,7 +73,7 @@ userSchema.methods.generateAccessToken = async function () {
 
 // Refresh token is generated in same way will minimum information
 userSchema.methods.generateRefreshToken = async function () {
-  jwt.sign(
+  return jwt.sign(
     {
       _id: this._id,
     },

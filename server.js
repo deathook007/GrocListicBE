@@ -13,7 +13,7 @@ connectMongoDB();
 
 const Users = mongoose.model("User");
 
-app.get("/", (req, res) => {
+app.get("/", (_, res) => {
   res.send("Success!");
 });
 
