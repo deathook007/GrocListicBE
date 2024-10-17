@@ -35,7 +35,17 @@ const userSchema = new mongoose.Schema(
     coverImage: {
       type: String,
     },
+    verifyToken: {
+      type: String,
+      default: false,
+    },
+    // verifyTokenExpiry: {
+    //   type: String,
+    // },
     refreshToken: {
+      type: String,
+    },
+    refreshTokenExpiry: {
       type: String,
     },
   },

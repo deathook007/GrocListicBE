@@ -13,7 +13,10 @@ export const generateAccessAndRefreshToken = async (userId) => {
 
     const refreshToken = await user.generateRefreshToken();
 
+    const { exp: refreshTokenExpiry } = await jwt.decode(refreshToken);
+
     user.refreshToken = refreshToken;
+    user.refreshTokenExpiry = refreshTokenExpiry;
 
     await user.save({ validateBeforeSave: false });
 
@@ -175,6 +178,11 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
     throw new ApiError(401, "Unauthenticated request");
   }
 
+  const options = {
+    httpOnly: true,
+    secure: true,
+  };
+
   try {
     const decodedToken = await jwt.verify(
       incomingRefreshToken,
@@ -184,17 +192,16 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
     const user = await User.findById(decodedToken?._id);
 
     if (!user) {
-      throw new ApiError(401, "Invalid refresh token");
+      throw new ApiError(401, "User not found");
+    }
+
+    if (user?.refreshTokenExpiry < Math.floor(Date.now() / 1000)) {
+      throw new ApiError(401, "Expired refresh token");
     }
 
     if (user?.refreshToken !== incomingRefreshToken) {
-      throw new ApiError(401, "Refresh token is expired");
+      throw new ApiError(401, "Invalid refresh token");
     }
-
-    const options = {
-      httpOnly: true,
-      secure: true,
-    };
 
     const { accessToken, refreshToken: newRefreshToken } =
       await generateAccessAndRefreshToken(user._id);
@@ -210,10 +217,14 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
             accessToken: accessToken,
             refreshToken: newRefreshToken,
           },
-          "Access Token refreshed successfully"
+          "Access token refreshed successfully"
         )
       );
   } catch (error) {
-    throw new ApiError(401, error?.message || "Invalid refresh token");
+    return res
+      .status(401)
+      .clearCookie("accessToken", options)
+      .clearCookie("refreshToken", options)
+      .json(new ApiResponse(401, {}, "Session expired. Please log in again."));
   }
 });
