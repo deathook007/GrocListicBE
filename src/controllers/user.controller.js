@@ -3,6 +3,8 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.modal.js";
 import { uploadFileOnCloudinary } from "../utils/uploadFileOnCloudinary.js";
+import { sendEmail } from "../helpers/mailer.js";
+
 import jwt from "jsonwebtoken";
 
 export const generateAccessAndRefreshToken = async (userId) => {
@@ -89,6 +91,12 @@ export const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(500, "Something went wrong while registering user");
   }
 
+  await sendEmail({
+    email: email,
+    emailType: "VERIFY",
+    userId: newUser._id,
+  });
+
   return res
     .status(200)
     .json(new ApiResponse(200, createdUser, "User registered successfully"));
@@ -119,8 +127,11 @@ export const loginUser = asyncHandler(async (req, res) => {
     user._id
   );
 
+  const updatedUser = await User.findById(user._id).select();
+  const verifyToken = updatedUser.verifyToken;
+
   const loggedInUser = await User.findById(user._id).select(
-    "-password -refreshToken"
+    "-password -verifyToken -refreshToken"
   );
 
   const options = {
@@ -132,11 +143,13 @@ export const loginUser = asyncHandler(async (req, res) => {
     .status(200)
     .cookie("accessToken", accessToken, options)
     .cookie("refreshToken", refreshToken, options)
+    .cookie("verifyToken", verifyToken, options)
     .json(
       new ApiResponse(
         200,
         {
           user: loggedInUser,
+          verifyToken: verifyToken,
           accessToken: accessToken,
           refreshToken: refreshToken,
         },

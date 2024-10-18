@@ -37,15 +37,20 @@ const userSchema = new mongoose.Schema(
     },
     verifyToken: {
       type: String,
-      default: false,
     },
-    // verifyTokenExpiry: {
-    //   type: String,
-    // },
+    verifyTokenExpiry: {
+      type: String,
+    },
     refreshToken: {
       type: String,
     },
     refreshTokenExpiry: {
+      type: String,
+    },
+    forgotPasswordToken: {
+      type: String,
+    },
+    forgotPasswordTokenExpiry: {
       type: String,
     },
   },

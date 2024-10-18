@@ -1,26 +1,31 @@
 import nodemailer from "nodemailer";
 import { User } from "../models/user.modal.js";
+import bcrypt from "bcrypt";
 
-interface ISendEmailProps {
-  email: string;
-  emailType: string;
-  userId: any;
-}
-
-export const sendEmail = async (props: ISendEmailProps) => {
+export const sendEmail = async (props) => {
   const { email, emailType, userId } = props;
+
+  const hash = await bcrypt.hash(userId.toString(), 10);
 
   try {
     if (emailType === "VERIFY") {
+      await User.findByIdAndUpdate(userId, {
+        verifyToken: hash,
+        verifyTokenExpiry: Date.now() + 3600000,
+      });
+    } else if (emailType === "RESET") {
+      await User.findByIdAndUpdate(userId, {
+        forgotPasswordToken: hash,
+        forgotPasswordTokenExpiry: Date.now() + 3600000,
+      });
     }
 
     const transporter = nodemailer.createTransport({
-      host: "smtp.ethereal.email",
-      port: 587,
-      secure: false,
+      host: process.env.NODEMAILER_HOST,
+      port: process.env.NODEMAILER_PORT,
       auth: {
-        user: "maddison53@ethereal.email",
-        pass: "jn7jnAPss4f63QBp6D",
+        user: process.env.NODEMAILER_USER,
+        pass: process.env.NODEMAILER_PASSWORD,
       },
     });
 
@@ -36,8 +41,6 @@ export const sendEmail = async (props: ISendEmailProps) => {
     };
 
     const mailResponse = await transporter.sendMail(mailOptions);
-
-    console.log("🚀 ~ sendEmail ~ mailResponse:", mailResponse);
   } catch (error) {
     throw new Error(error?.message || "Send email error");
   }
