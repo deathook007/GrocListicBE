@@ -17,8 +17,11 @@ export const generateAccessAndRefreshToken = async (userId) => {
 
     const { exp: refreshTokenExpiry } = await jwt.decode(refreshToken);
 
+    // Convert the `refreshTokenExpiry` (which is in seconds) to a JavaScript Date object
+    const refreshTokenExpiryDate = new Date(refreshTokenExpiry * 1000);
+
     user.refreshToken = refreshToken;
-    user.refreshTokenExpiry = refreshTokenExpiry;
+    user.refreshTokenExpiry = refreshTokenExpiryDate;
 
     await user.save({ validateBeforeSave: false });
 
@@ -208,7 +211,7 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
       throw new ApiError(401, "User not found");
     }
 
-    if (user?.refreshTokenExpiry < Math.floor(Date.now() / 1000)) {
+    if (user?.refreshTokenExpiry < new Date()) {
       throw new ApiError(401, "Expired refresh token");
     }
 
