@@ -12,14 +12,14 @@ export const sendEmail = async (props) => {
       await User.findByIdAndUpdate(userId, {
         $set: {
           verifyToken: tokenHash,
-          verifyTokenExpiry: new Date(Date.now() + 86400000), // 1 day from now
+          verifyTokenExpiry: new Date(Date.now() + 12 * 60 * 60 * 1000),
         },
       });
     } else if (emailType === "RESET") {
       await User.findByIdAndUpdate(userId, {
         $set: {
           forgotPasswordToken: tokenHash,
-          forgotPasswordTokenExpiry: new Date(Date.now() + 86400000), // 1 day from now
+          forgotPasswordTokenExpiry: new Date(Date.now() + 15 * 60 * 1000),
         },
       });
     }
