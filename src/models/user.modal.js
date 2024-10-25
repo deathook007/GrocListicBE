@@ -35,6 +35,10 @@ const userSchema = new mongoose.Schema(
     coverImage: {
       type: String,
     },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
     verifyToken: {
       type: String,
     },
@@ -62,12 +66,17 @@ const userSchema = new mongoose.Schema(
 // Arrow functions don't have this context therefore function () {}
 userSchema.pre("save", async function (next) {
   if (this.isModified("password")) {
-    this.password = await bcrypt.hash(this.password, 10);
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
   }
   next();
 });
 
 userSchema.methods.isPasswordCorrect = async function (password) {
+  return await bcrypt.compare(password, this.password);
+};
+
+userSchema.methods.comparePassword = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 

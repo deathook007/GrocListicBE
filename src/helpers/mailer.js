@@ -5,21 +5,21 @@ import bcrypt from "bcrypt";
 export const sendEmail = async (props) => {
   const { email, emailType, userId } = props;
 
-  const hash = await bcrypt.hash(userId.toString(), 10);
+  const tokenHash = await bcrypt.hash(userId.toString(), 10);
 
   try {
     if (emailType === "VERIFY") {
       await User.findByIdAndUpdate(userId, {
         $set: {
-          verifyToken: hash,
+          verifyToken: tokenHash,
           verifyTokenExpiry: new Date(Date.now() + 86400000), // 1 day from now
         },
       });
     } else if (emailType === "RESET") {
       await User.findByIdAndUpdate(userId, {
         $set: {
-          verifyToken: hash,
-          verifyTokenExpiry: new Date(Date.now() + 86400000), // 1 day from now
+          forgotPasswordToken: tokenHash,
+          forgotPasswordTokenExpiry: new Date(Date.now() + 86400000), // 1 day from now
         },
       });
     }
@@ -40,8 +40,19 @@ export const sendEmail = async (props) => {
         emailType === "VERIFY"
           ? "Verify your email ✔"
           : "Reset your password ✔",
-      text: "Testing",
-      html: "<b>Testing?</b>",
+      text: "",
+      html:
+        emailType === "VERIFY"
+          ? `<p>Hello,</p>
+             <p>Thank you for registering with us! To complete your registration, please verify your email by clicking the link below. This helps ensure the security of your account. If you did not register, please ignore this email or contact our support team.</p>
+             <p><a href="[VerificationLink]">Verify your email</a></p>
+             <p>Best regards,</p>
+             <p><b>GrocListic Team</b></p>`
+          : `<p>Hello,</p>
+             <p>We received a request to reset your password. You can reset your password by clicking the link below. If you did not request a password reset, please ignore this email or contact our support team.</p>
+             <p><a href="[VerificationLink]">Reset your password</a></p>
+             <p>Best regards,</p>
+             <p><b>GrocListic Team</b></p>`,
     };
 
     const mailResponse = await transporter.sendMail(mailOptions);

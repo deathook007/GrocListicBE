@@ -27,6 +27,10 @@ app.use(express.static("public"));
 
 app.use(cookieParser());
 
+import { rateLimiter } from "./src/middleware/rateLimiter.middleware.js";
+
+app.use(rateLimiter);
+
 //Routes
 import { router as userRouter } from "./src/routes/user.routes.js";
 

@@ -244,3 +244,96 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
       .json(new ApiResponse(401, {}, "Session expired. Please log in again."));
   }
 });
+
+export const forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    throw new ApiError(400, "Email is required");
+  }
+
+  const user = await User.findOne({ email: email.toLowerCase() });
+
+  if (!user) {
+    throw new ApiError(
+      404,
+      "User not found. Please sign up to create an account"
+    );
+  }
+
+  try {
+    await sendEmail({
+      email: email,
+      emailType: "RESET",
+      userId: user._id,
+    });
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          {},
+          "Password reset email has been sent successfully. Please check your inbox for further instructions."
+        )
+      );
+  } catch (error) {
+    return res
+      .status(500)
+      .json(
+        new ApiResponse(
+          500,
+          {},
+          "Something went wrong while resetting your password"
+        )
+      );
+  }
+});
+
+export const resetPassword = asyncHandler(async (req, res) => {
+  const { forgotPasswordToken, newPassword, confirmNewPassword } = req.body;
+
+  if (!forgotPasswordToken) {
+    throw new ApiError(400, "Reset token is required");
+  }
+
+  if (!newPassword || !confirmNewPassword) {
+    throw new ApiError(400, "New password and confirm password are required");
+  }
+
+  if (newPassword !== confirmNewPassword) {
+    throw new ApiError(400, "Passwords do not match");
+  }
+
+  const user = await User.findOne({
+    forgotPasswordToken: forgotPasswordToken,
+    forgotPasswordTokenExpiry: {
+      $gt: Date.now(),
+    },
+  });
+
+  if (!user) {
+    throw new ApiError(
+      404,
+      "Invalid or expired reset token. Please request a new password reset link."
+    );
+  }
+
+  const isSamePassword = await user.comparePassword(newPassword);
+  if (isSamePassword) {
+    throw new ApiError(
+      400,
+      "New password cannot be the same as the old password"
+    );
+  }
+
+  user.password = newPassword;
+  user.forgotPasswordToken = undefined;
+  user.forgotPasswordTokenExpiry = undefined;
+
+  await user.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Password has been reset successfully"));
+});
