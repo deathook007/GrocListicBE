@@ -1,6 +1,6 @@
-import nodemailer from "nodemailer";
 import { User } from "../models/user.modal.js";
 import bcrypt from "bcrypt";
+import nodemailer from "nodemailer";
 
 export const sendEmail = async (props) => {
   const { email, emailType, userId } = props;

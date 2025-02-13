@@ -1,11 +1,10 @@
-import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.modal.js";
-import { uploadFileOnCloudinary } from "../utils/uploadFileOnCloudinary.js";
-import { sendEmail } from "../helpers/mailer.js";
-
+import { asyncHandler } from "../utils/asyncHandler.js";
 import jwt from "jsonwebtoken";
+import { sendEmail } from "../helpers/mailer.js";
+import { uploadFileOnCloudinary } from "../utils/uploadFileOnCloudinary.js";
 
 export const generateAccessAndRefreshToken = async (userId) => {
   try {
@@ -162,8 +161,14 @@ export const loginUser = asyncHandler(async (req, res) => {
 });
 
 export const logoutUser = asyncHandler(async (req, res) => {
+  const { userId } = req.body;
+
+  if (!userId) {
+    throw new ApiError(400, "userId is required");
+  }
+
   await User.findByIdAndUpdate(
-    req.user._id,
+    userId,
     {
       $set: {
         refreshToken: undefined,
