@@ -33,5 +33,5 @@ router.route("/forgot-password").post(forgotPassword);
 router.route("/reset-password").post(resetPassword);
 
 //Secured Routes (User should be logged in)
-router.route("/logout").post(verifyJWT, logoutUser);
+router.route("/logout").post(logoutUser);
 router.route("/refresh-token").post(refreshAccessToken);
