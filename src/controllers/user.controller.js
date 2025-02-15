@@ -101,7 +101,7 @@ export const registerUser = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, createdUser, "User registered successfully"));
+    .json(new ApiResponse(200, "User registered successfully", createdUser));
 });
 
 export const loginUser = asyncHandler(async (req, res) => {
@@ -147,16 +147,11 @@ export const loginUser = asyncHandler(async (req, res) => {
     .cookie("refreshToken", refreshToken, options)
     .cookie("verifyToken", verifyToken, options)
     .json(
-      new ApiResponse(
-        200,
-        {
-          user: loggedInUser,
-          verifyToken: verifyToken,
-          accessToken: accessToken,
-          refreshToken: refreshToken,
-        },
-        "User logged in successfully"
-      )
+      new ApiResponse(200, "User logged in successfully", {
+        verifyToken: verifyToken,
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+      })
     );
 });
 
@@ -188,7 +183,7 @@ export const logoutUser = asyncHandler(async (req, res) => {
     .status(200)
     .clearCookie("accessToken", options)
     .clearCookie("refreshToken", options)
-    .json(new ApiResponse(200, {}, "User logged out successfully"));
+    .json(new ApiResponse(200, "User logged out successfully", {}));
 });
 
 export const refreshAccessToken = asyncHandler(async (req, res) => {
@@ -232,21 +227,17 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
       .cookie("accessToken", accessToken, options)
       .cookie("refreshToken", newRefreshToken, options)
       .json(
-        new ApiResponse(
-          200,
-          {
-            accessToken: accessToken,
-            refreshToken: newRefreshToken,
-          },
-          "Access token refreshed successfully"
-        )
+        new ApiResponse(200, "Access token refreshed successfully", {
+          accessToken: accessToken,
+          refreshToken: newRefreshToken,
+        })
       );
   } catch (error) {
     return res
       .status(401)
       .clearCookie("accessToken", options)
       .clearCookie("refreshToken", options)
-      .json(new ApiResponse(401, {}, "Session expired. Please log in again."));
+      .json(new ApiResponse(401, "Session expired. Please log in again.", {}));
   }
 });
 
@@ -278,8 +269,8 @@ export const forgotPassword = asyncHandler(async (req, res) => {
       .json(
         new ApiResponse(
           200,
-          {},
-          "Password reset email has been sent successfully. Please check your inbox for further instructions."
+          "Password reset email has been sent successfully. Please check your inbox for further instructions.",
+          {}
         )
       );
   } catch (error) {
@@ -288,8 +279,8 @@ export const forgotPassword = asyncHandler(async (req, res) => {
       .json(
         new ApiResponse(
           500,
-          {},
-          "Something went wrong while resetting your password"
+          "Something went wrong while resetting your password",
+          {}
         )
       );
   }
@@ -340,5 +331,5 @@ export const resetPassword = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, {}, "Password has been reset successfully"));
+    .json(new ApiResponse(200, "Password has been reset successfully", {}));
 });
