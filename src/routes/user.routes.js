@@ -1,5 +1,6 @@
 import {
   forgotPassword,
+  getUserDetails,
   loginUser,
   logoutUser,
   refreshAccessToken,
@@ -9,7 +10,6 @@ import {
 
 import { Router } from "express";
 import { upload } from "../middleware/multer.middleware.js";
-import { verifyJWT } from "../middleware/auth.middleware.js";
 
 export const router = Router();
 
@@ -35,3 +35,4 @@ router.route("/reset-password").post(resetPassword);
 //Secured Routes (User should be logged in)
 router.route("/logout").post(logoutUser);
 router.route("/refresh-token").post(refreshAccessToken);
+router.route("/user-details").post(getUserDetails);
