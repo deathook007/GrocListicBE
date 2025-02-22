@@ -4,14 +4,6 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
-    username: {
-      type: String,
-      required: [true, "Please provide a username"],
-      unique: true,
-      lowercase: true,
-      trim: true,
-      index: true, //For optimizing searching field (Performance heavy)
-    },
     fullName: {
       type: String,
       required: [true, "Please provide a full name"],
@@ -84,7 +76,6 @@ userSchema.methods.generateAccessToken = async function () {
   return jwt.sign(
     {
       _id: this._id,
-      username: this.username,
       fullName: this.fullName,
       email: this.email,
     },

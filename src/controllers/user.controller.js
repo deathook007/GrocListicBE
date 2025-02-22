@@ -37,20 +37,18 @@ export const generateAccessAndRefreshToken = async (userId) => {
 };
 
 export const registerUser = asyncHandler(async (req, res) => {
-  const { username, fullName, email, password } = req.body;
+  const { fullName, email, password } = req.body;
 
-  if (
-    [username, fullName, email, password].some((field) => field?.trim === "")
-  ) {
+  if ([fullName, email, password].some((field) => field?.trim === "")) {
     throw new ApiError(400, "All field are required");
   }
 
   const existingUser = await User.findOne({
-    $or: [{ username }, { email }],
+    $or: [{ email }],
   });
 
   if (existingUser) {
-    throw new ApiError(409, "User already exists with same username or email");
+    throw new ApiError(409, "User already exists with same email");
   }
 
   let avatarLocalPath;
@@ -77,7 +75,6 @@ export const registerUser = asyncHandler(async (req, res) => {
   const coverImage = await uploadFileOnCloudinary(coverImageLocalPath);
 
   const newUser = await User.create({
-    username: username.toLowerCase(),
     fullName,
     email: email.toLowerCase(),
     password,
@@ -103,14 +100,14 @@ export const registerUser = asyncHandler(async (req, res) => {
 });
 
 export const loginUser = asyncHandler(async (req, res) => {
-  const { username, email, password } = req.body;
+  const { email, password } = req.body;
 
-  if (!username && !email) {
-    throw new ApiError(400, "Username or email is required");
+  if (!email) {
+    throw new ApiError(400, "Email is required");
   }
 
   const user = await User.findOne({
-    $or: [{ username }, { email }],
+    $or: [{ email }],
   });
 
   if (!user) {
