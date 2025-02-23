@@ -126,12 +126,14 @@ export const loginUser = asyncHandler(async (req, res) => {
 
   const updatedUser = await User.findById(user._id).select();
   const verifyToken = updatedUser.verifyToken;
+  const userId = updatedUser._id;
 
   return res.status(200).json(
     new ApiResponse(200, "User logged in successfully", {
-      verifyToken: verifyToken,
-      accessToken: accessToken,
-      refreshToken: refreshToken,
+      userId,
+      verifyToken,
+      accessToken,
+      refreshToken,
     })
   );
 });
@@ -195,7 +197,7 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
 
     return res.status(200).json(
       new ApiResponse(200, "Access token refreshed successfully", {
-        accessToken: accessToken,
+        accessToken,
         refreshToken: newRefreshToken,
       })
     );
