@@ -43,9 +43,7 @@ export const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "All field are required");
   }
 
-  const existingUser = await User.findOne({
-    $or: [{ email }],
-  });
+  const existingUser = await User.findOne({ email: email.toLowerCase() });
 
   if (existingUser) {
     throw new ApiError(409, "User already exists with same email");
@@ -106,9 +104,7 @@ export const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Email is required");
   }
 
-  const user = await User.findOne({
-    $or: [{ email }],
-  });
+  const user = await User.findOne({ email: email.toLowerCase() });
 
   if (!user) {
     throw new ApiError(404, "User not found!");

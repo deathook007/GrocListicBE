@@ -1,6 +1,7 @@
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
+import { router as listRouter } from "./src/routes/list.routes.js";
 import { rateLimiter } from "./src/middleware/rateLimiter.middleware.js";
 //Routes
 import { router as userRouter } from "./src/routes/user.routes.js";
@@ -33,3 +34,4 @@ app.use(cookieParser());
 app.use(rateLimiter);
 
 app.use("/api/v1/users", userRouter); //https:localhost:3000/api/v1/users
+app.use("/api/v1/lists", listRouter); //https:localhost:3000/api/v1/lists
