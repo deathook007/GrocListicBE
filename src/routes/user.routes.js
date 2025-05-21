@@ -6,6 +6,7 @@ import {
   refreshAccessToken,
   registerUser,
   resetPassword,
+  updateUserDetails,
 } from "../controllers/user.controller.js";
 
 import { Router } from "express";
@@ -36,3 +37,4 @@ router.route("/reset-password").post(resetPassword);
 router.route("/logout").post(logoutUser);
 router.route("/refresh-token").post(refreshAccessToken);
 router.route("/user-details").post(getUserDetails);
+router.route("/update-user").post(updateUserDetails);

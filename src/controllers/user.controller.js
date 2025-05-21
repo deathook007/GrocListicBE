@@ -314,3 +314,27 @@ export const getUserDetails = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, "User fetched successfully", user));
 });
+
+export const updateUserDetails = asyncHandler(async (req, res) => {
+  const { userId, fullName } = req.body;
+
+  if (!userId) {
+    throw new ApiError(400, "User id is required");
+  }
+
+  if (fullName?.length === 0) {
+    throw new ApiError(400, "Full Name cannot be empty");
+  }
+
+  const user = await User.findOne({ _id: userId });
+
+  if (!user) {
+    throw new ApiError(401, "User not found!");
+  }
+
+  user.fullName = fullName;
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, "User fetched successfully", user));
+});
