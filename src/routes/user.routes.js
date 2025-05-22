@@ -33,7 +33,7 @@ router.route("/login").post(loginUser);
 router.route("/forgot-password").post(forgotPassword);
 router.route("/reset-password").post(resetPassword);
 
-//Secured Routes (User should be logged in)
+//Secured Routes (User should be logged in) // Add requireAuth middleware when gets time!!
 router.route("/logout").post(logoutUser);
 router.route("/refresh-token").post(refreshAccessToken);
 router.route("/user-details").post(getUserDetails);
